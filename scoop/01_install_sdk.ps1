@@ -41,12 +41,34 @@ pnpm setup
 [Environment]::setEnvironmentVariable('ELECTRON_BUILDER_BINARIES_MIRROR', "https://npmmirror.com/mirrors/electron-builder-binaries/",'User')
 ## end node
 
-## python
-./install_cmd.ps1 python
-pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
-pip config set global.index https://mirrors.aliyun.com/pypi
-pip config set global.trusted-host mirrors.aliyun.com
-pip install setuptools
+## python (pyenv-win)
+$pyenvRoot = "$env:USERPROFILE\.pyenv\pyenv-win"
+if (-not (Test-Path $pyenvRoot)) {
+    
+    git clone git@github.com:pyenv-win/pyenv-win.git "$env:USERPROFILE\.pyenv"
+}
+
+[Environment]::SetEnvironmentVariable('PYENV', "$env:USERPROFILE\.pyenv\pyenv-win", 'User')
+[Environment]::SetEnvironmentVariable('PYENV_HOME', "$env:USERPROFILE\.pyenv\pyenv-win", 'User')
+[Environment]::SetEnvironmentVariable('PYENV_ROOT', "$env:USERPROFILE\.pyenv\pyenv-win", 'User')
+$env:PYENV = "$env:USERPROFILE\.pyenv\pyenv-win"
+$env:PYENV_HOME = "$env:USERPROFILE\.pyenv\pyenv-win"
+$env:PYENV_ROOT = "$env:USERPROFILE\.pyenv\pyenv-win"
+
+$pyenvBin = "$env:USERPROFILE\.pyenv\pyenv-win\bin;$env:USERPROFILE\.pyenv\pyenv-win\shims"
+$env:PATH = "$pyenvBin;$env:PATH"
+[Environment]::SetEnvironmentVariable('Path', "$pyenvBin;$env:PATH", 'User')
+
+# 初始化 pyenv
+pyenv --version
+pyenv update
+
+# 替换 .versions_cache.xml 镜像为 npmmirror.com
+$cacheFile = "$env:USERPROFILE\.pyenv\pyenv-win\.versions_cache.xml"
+if (Test-Path $cacheFile) {
+    (Get-Content $cacheFile) -replace "https://www\.python\.org/ftp/python/", "https://registry.npmmirror.com/-/binary/python/" | Set-Content $cacheFile
+}
+
 ## end python
 
 ## go

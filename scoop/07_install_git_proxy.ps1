@@ -17,8 +17,18 @@ Host github.com
     Port 443
     ProxyCommand $proxyCommand
     IdentityFile ~/.ssh/id_ecdsa
-"@ | Out-File -FilePath $sshConfigPath -Encoding utf8 -Force
-#dox2unix $sshConfigPath
+"@ | Out-File -FilePath $sshConfigPath -Encoding utf8BOM -Force
+
+# 设置控制台编码为UTF8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+# 检查SSH主机密钥
+ssh -T git@github.com 2>&1 | Out-Host
+
+# 输出提示信息
+Write-Host "SSH配置已完成。请按提示输入 'yes' 继续连接。" -ForegroundColor Green
+Write-Host "如果需要重新配置，请删除 ~/.ssh/known_hosts 文件并重新运行脚本。" -ForegroundColor Yellow
+
 # 2. 启动SSH代理服务并添加密钥
 #Start-Service ssh-agent
 #ssh-add "$HOME\.ssh\id_ed25519"
